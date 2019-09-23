@@ -1,0 +1,13 @@
+•Exit pyspark (Ctrl+D)
+
+•If you haven’t done before, put the data file on HDFS:
+  hfs -copyFromLocal sherlock.txt
+
+•Run the wordcount Python program using Spark:
+  spark-submit wordcount.py sherlock.txt
+
+•Output can be found in wc.out
+	hfs -getmerge wc.out wc.out
+
+•View the first 20 lines of the output
+	head -n 20 wc.out
