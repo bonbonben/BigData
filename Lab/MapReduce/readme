@@ -1,0 +1,39 @@
+For Hadoop-streaming, the mapper and reducer are executables which read from STDIN and write to STDOUT
+
+The mapper should read from STDIN records, by default the line break is the record separator
+The mapper should print to STDOUT key-value pairs, each line is one key-value pair, with the key and the value separated by a tab
+
+The reducer should read (pre-sorted) key-value pairs from STDIN, again one per line with a tab character separating key from value
+The reducer should print a single key-value pair to STDOUT, also one per line, tab-delimited
+
+You can test a Hadoop streaming pipeline on the bash shell, like:
+./mapper < input_file | sort -k1,1 | ./reducer
+
+Step 1. put the input file onto hdfs, like:
+hfs -put book.txt
+
+Step 2. mapreduce will abort if the files it wants to write already exist, so first clean up from previous runs, like:
+hfs -rm -r example.out
+
+Step 3. run the Hadoop-Streaming job, like:
+hjs \
+-D mapreduce.job.reduces=2 \
+-file ~/example/src \
+-mapper src/mapper.sh \
+-reducer src/reducer.sh \
+-input /user/book.txt \
+-output /user/example.out
+(Note that the backslashes "\" must be the last character before the newline for Bash to understand to continue parsing on the next line)
+# you can control the number of reducers with the argument "-D mapreduce.job.reduces=<number>"
+
+Step 4. move the output from HDFS to your home directory, like:
+hfs -get example.out
+
+You will have a directory called ‘example.out’ in the current directory.
+It contains two files (“part-00000” and “part-00001”) because 2 reduce tasks were used.
+To view these files, you can type, for example, cat example.out/part-00000
+
+If you want the output in one file, Hadoop can merge it for you. Type
+hfs -getmerge example.out examplemerged.txt
+You will have a text file called “examplemerged.txt” which contains all the output.
+To view the file, you can type, for example, cat examplemerged.txt
