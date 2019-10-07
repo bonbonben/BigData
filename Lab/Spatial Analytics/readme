@@ -1,0 +1,19 @@
+Data files:
+1. NYC taxi trip data: taxi_lab_100k.csv
+2. Polygons corresponding to NYC neighborhoods: neighborhoods.poly
+
+Make sure that you have pandas and shapely installed:
+pip install pandas
+pip install shapely
+Or
+conda install pandas
+conda install shapely
+(depending on what environment you have installed)
+
+Select taxi trip IDs for which the pickup was within the query polygon given in neighborhood.poly for Midtown-Midtown South
+1. Using brute force, comparing each trip pickup with the polygon. How long does executing the query take?
+2. Create a grid index on the Taxi data, and perform the query using the index
+(a) Create a grid index of size 1024 x 1024
+(b) Create a grid indexes of size n x n, where n = {128,256,512,1024,2048,4096}
+(c) plot the running time of the query against the index resolution
+(d) what can be inferred from this plot?
