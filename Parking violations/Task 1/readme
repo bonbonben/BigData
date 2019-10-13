@@ -1,0 +1,12 @@
+Task 1: Find all parking violations that have been paid, i.e., that do not occur in open-violations.csv.
+
+Output: A key-value* pair per line, where: key = summons_number, values = plate_id, violation_precinct, violation_code, issue_date
+(*Note: separate key and value by the tab character (‘\t’), and elements within the key/value should be separated by a comma then a space. This applies to all tasks.)
+
+Output format examples:
+1307964308  GBH2444, 74, 46, 2016-03-07
+4617863450  HAM2650, 0, 36, 2016-03-24
+
+1) Write a map-reduce job. Run Hadoop using 2 reducers.
+2) Write a Spark program.
+3) Write a SparkSQL program.
