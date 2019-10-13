@@ -1,0 +1,22 @@
+Using MapReduce and Spark to explore NYC Parking Violations
+
+Goal:
+Analyze different aspects of parking violations in NYC using both Hadoop Streaming and Spark.
+1) map and reduce Python programs for the first 3 tasks
+2) PySpark programs using both RDDs and DataFrames for all 7 tasks
+
+Data:
+The data we will use is open and available from NYC Open Data:
+Parking Violations Issued (Fiscal Year 2016)
+https://data.cityofnewyork.us/City-Government/Parking-Violations-Issued-Fiscal-Year-2016/kiv2-tbus/data
+Open Parking and Camera Violations
+https://data.cityofnewyork.us/City-Government/Open-Parking-and-Camera-Violations/nc67-uf89
+
+The subset of the data we will use for this assignment (March 2016) can be found here:
+https://vgc.poly.edu/~juliana/courses/BigData2018/Data/parking-violations.tar.gz
+Note: you only need the files parking-violations.csv and open-violations.csv in the tar file above.
+The included file mysql-load.sql will tell you the ordering of the columns in each table 
+(which can also be found by reading about the data on the NYC Open Data sites).
+
+Environment:
+Python 3.6.5 and Spark 2.4.0
