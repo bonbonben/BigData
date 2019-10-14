@@ -1,0 +1,11 @@
+Task 2: Find the frequencies of the violation types in parking_violations.csv, i.e., for each violation code, the number of violations that this code has.
+
+Output: A key-value pair per line, where: key = violation_code, value = number of violations
+
+Output format examples:
+1  159
+46  100
+
+1) Write a map-reduce job. Run Hadoop using 2 reducers.
+2) Write a Spark program.
+3) Write a SparkSQL program.
