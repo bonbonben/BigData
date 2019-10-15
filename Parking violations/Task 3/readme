@@ -1,0 +1,12 @@
+Task 3: Find the total and average amounts due in open violations for each license type.
+
+Output: A key-value pair per line, where: key = license_type, value = total, average where total and average are rounded to 2 decimal places.
+
+Output format examples:
+PAS  10000.00, 55.00
+OMS  100000.00, 115.00
+USC  250.00, 125.00
+
+1) Write a map-reduce job. Run Hadoop using 2 reducers.
+2) Write a Spark program.
+3) Write a SparkSQL program.
