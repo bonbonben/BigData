@@ -1,0 +1,9 @@
+Task 5: Find the vehicle that has had the greatest number of violations (assume that plate_id and registration_state uniquely identify a vehicle).
+
+Output: One key-value pair
+
+Output format examples:
+plate_id, registration_state <total_number>
+
+1) Write a Spark program.
+2) Write a SparkSQL program.
