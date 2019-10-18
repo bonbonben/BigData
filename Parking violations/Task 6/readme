@@ -1,0 +1,10 @@
+Task 6: Find the top-20 vehicles in terms of total violations (assume that plate_id and registration_state uniquely identify a vehicle).
+
+Output: List* of 20 key-value pairs
+
+Output format examples:
+plate_id, registration_state <total_number>
+*Ordered by decreasing number of violations. For items with the same number of violations, order by ascending plate_id.
+
+1) Write a Spark program.
+2) Write a SparkSQL program.
