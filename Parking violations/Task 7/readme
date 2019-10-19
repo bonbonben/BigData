@@ -1,0 +1,11 @@
+Task 7: For each violation code, list the average number of violations with that code issued per day on weekdays and weekend days.
+You may hardcode “8” as the number of weekend days and “23” as the number of weekdays in March 2016.
+In March 2016, the 5th, 6th, 12th, 13th, 19th, 20th, 26th, and 27th were weekend days (i.e., Sat. and Sun.).
+
+Output: List of key-value pairs
+
+Output format examples:
+violation_code  weekend_average, week_average where weekend_average and week_average are rounded to 2 decimal places.
+
+1) Write a Spark program.
+2) Write a SparkSQL program.
