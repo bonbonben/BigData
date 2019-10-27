@@ -1,0 +1,6 @@
+1. Values for vehicle_color and vehicle_make are missing.
+2. The vehicle_color attribute use different values to represent the same color. For example, WHITE and WHT mean WHITE.
+3. Some values of vehicle_color and vehicle_make are mixed up. For example, WHT occurs in vehicle_make while it's a vehicle_color.
+4. Some values of registration_state might use 99 to represent the missing values.
+5. Some values of attributes contain ','. This will produce more words than the real amount of words in one row when we split the csv file into words.
+6. Some columns have more missing values than available values.
