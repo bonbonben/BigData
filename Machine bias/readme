@@ -1,0 +1,31 @@
+ProPublica’s “Machine Bias”: https://www.propublica.org/article/machine-bias-risk-assessments-in-criminal-sentencing
+Support for itemset I = the number of baskets containing all items in I.
+• Often expressed as a fraction of the total number of baskets
+• Given a support threshold s, sets of items that appear in at least s baskets are called frequent itemsets.
+Confidence of this association rule is the probability of j given i1,…,ik.
+•Conf(I->j) = support(I ∪ j) / support(I)
+
+Goal:
+Compute CARs that have vscore on the right-hand-side, and one or several of the following attributes on the left-hand-side: race, age , gender or marriage.
+For example, you may compute the rules:
+age=30, gender=1 => vdecile=1
+age=40, race=1 => vdecile=2
+But you should not compute the rules:
+gender=0 vdecile=1 => age=30
+age=30 => marriage=2
+All rules you produce must have vdecile=1 or vdecile=2 on the right hand side, and should not have either vdecile=1 or vdecile=2 on the left hand side.
+
+Place all computed rules into relations R2, R3 and PD_R3.
+R2 and R3 should each contain classification association rules of sizes 2 and 3, respectively, with vdecile=0 or vdecile=1 on the right.
+Only output rules that pass the support and confidence thresholds.
+For each rule in R2 and R3, compute and output its support and confidence.
+These should be placed into the appropriate columns in the output relations.
+
+PD_R3 should contain a subset of the rules from R3.
+Each rule in PD_R3 (1) has race as one of the attributes on the left-hand-side and (2) meets the protection threshold.
+
+For relations R2 and R3, attribute names are stored in alphabetical order.
+If your rule contains attributes age and gender on the left-hand-side, then it should be the case that R3.attr1 = ‘age’, and R3.attr2=’gender’.
+You should not explicitly mention by name (hard-code) attributes other than vdecile and race anywhere in your code.
+Assume that your code should still work if another attribute is added, e.g., income or education.
+It is OK to refer to race and vdecile by name, since these attributes have special meaning.
