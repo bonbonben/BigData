@@ -1,0 +1,63 @@
+Goal:
+Work with the prediction output of a particular machine learning model – a classifier – and utilize the open-source LIME library to explain its predictions.
+Then perform feature selection based on the set of generated textual explanations in order to improve the classifier’s performance.
+https://github.com/marcotcr/lime
+https://dl.acm.org/citation.cfm?doid=2939672.2939778
+
+Description:
+Explore text data to validate sentiment analysis.
+Use the 20 newsgroups text corpus, and focus only on two classes, Atheism and Christianity.
+The provided ML model takes in this text corpus and performs binary classification to predict for a given document if it has Atheistic or Christian sentiment.
+Work with this prediction output of this model.
+Note that this model is built in Spark using its machine learning libraries ML and MLlib, and so you will be working with Spark data structures.
+p.s. LIME does not provide causal explanations, so be careful to not think of these associations as causal links!
+http://qwone.com/~jason/20Newsgroups/
+
+Environment:
+Python 3.6.5 and Spark 2.4.0
+
+Task 1: Generating explanations
+1. Fetch the training and test datasets from the 20 newsgroups corpus for two categories, Atheism and Christianity.
+  a. Compute and report the number of documents in training and test datasets.
+  b. Index the documents in each dataset (training and test) by creating a 0-based index column for each dataset.
+    ● Name this column “id”
+    ● Paste the first 5 lines of indexed test set into your report (truncate = True)
+
+2. Tokenize the text, weigh each word using the TF-IDF measure (“term frequency-inverse document frequency”), and then use logistic regression for binary classification.
+These steps are wrapped inside a pipeline, which, when invoked with a training dataset, produces a binary classifier.
+When the resulting classifier is invoked on a document from the test set, it associates with that document a probability distribution, quantifying the likelihood that the document belongs to either class (Atheism or Christianity), and finally assigns the document to the more likely class.
+  a. Compute and report the F1-score on the test dataset.
+  b. Report the schema of the model’s prediction output. Giving names and data types of columns is sufficient.
+Illustrate the use of LIME’s explainer to generate an explanation for a document randomly chosen from the test dataset.
+
+3. For test set documents with ids 0, 275, and 664, report in txt file their:
+  (i) categories (ground truth)
+  (ii) probabilities over categories computed by the classifier
+  (iii) predicted category for each document, and
+  (iv) LIME’s generated textual explanation, in terms of 6 features.
+
+4. The difference between the imputed probabilities of the two classes for a document, denoted conf, can be a measure of the model’s confidence in its prediction for that document.
+conf = |prob(Christian)-prob(Atheism)|
+For the misclassified documents, conf can be used to quantify the magnitude of the error.
+Generate explanations for all misclassified documents in the test set, sorted by conf in descending order, and save this output to misclassified_ordered.csv.
+For each document per line, list its ID, conf, and LIME’s textual explanation in 6 features.
+An example for outputs of a misclassified document looks like this:
+6, 0.5959862, [('Freemasonry', -0.22918663477083728), ('Page', - 0.10337955399482289), ('equality', 0.08857358902666021), ('10th', -0.074338694087527), ('Ministry', 0.06657848659291651), ('Posting', 0.0633698144289709)]
+
+5. Identify all words that contributed to the misclassification of some document.
+Naturally, some words will be implicated for multiple documents.
+For each word (call it word_j), compute,
+  a. the number of documents it helped misclassify (call it count_j) and
+  b. the total weight of that word in all documents it helped misclassify (weight_j) (sum of absolute values of weight_j for each misclassified document).
+  Use absolute values because LIME assigns a positive or a negative sign to weight_j depending on the class to which word_j is contributing.
+Output all such words to words_weight.csv, sorted by count_j in descending order.
+Present one word per line, along with its count and weight.
+For example, the output may contain the following line:
+Organization, 200, 124.70125
+
+Task 2 (50 points): Feature selection
+Focusing on all misclassified documents for which conf_i >= 0.1, identify one strategy for feature selection that improves classifier accuracy.
+● identify features (words) to remove from the training set
+● remove these words from the training set only
+● retrain the provided model on this adjusted training set
+● report model accuracy (F1-score)
