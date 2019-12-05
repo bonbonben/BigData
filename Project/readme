@@ -1,0 +1,16 @@
+Task 1: Generic Profiling
+Profile a large collection of open data sets and derive metadata that can be used for data discovery, querying, and identification of data quality problems.
+
+For each column in the dataset collection, extract the following metadata
+1. Number of non-empty cells
+2. Number of empty cells (i.e., cell with no data)
+3. Number of distinct values
+4. Top-5 most frequent value(s)
+5. Data types (a column may contain values belonging to multiple types)
+
+Identify the data types for each distinct column value as one of the following: INTEGER (LONG), REAL, DATE/TIME, TEXT
+For each column count the total number of values as well as the distinct values for each of the above data types.
+
+For columns that contain at least one value of type INTEGER / REAL report: Maximum value, Minimum value, Mean, Standard Deviation
+For columns that contain at least one value of type DATE report: Maximum value, Minimum value
+For columns that contain at least one value of type TEXT report: Top-5 Shortest value(s) (the values with shortest length), Top-5 Longest values(s) (the values with longest length), Average value length
