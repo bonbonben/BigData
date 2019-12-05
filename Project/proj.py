@@ -29,13 +29,12 @@ def identify(value):
 
     try:
         s = str(value)
-	#s = dateutil.parser.parse(str(value))
-	#check = datetime.strptime(str(s),'%Y-%m-%d  %H:%M:%S')
-        fmts = ["%m/%d/%Y %H:%M:%S %p", "%m-%d-%Y %H:%M:%S %p", "%x", "%X"]
-        for fmt in fmts:
-            check = datetime.strptime(s, fmt)
-            if check:
-                return "DATE/TIME"
+        check = dateutil.parser.parse(s)
+        #fmts = ["%m/%d/%Y %H:%M:%S %p", "%m-%d-%Y %H:%M:%S %p", "%x", "%X"]
+        #for fmt in fmts:
+        #    check = datetime.strptime(s, fmt)
+        #    if check:
+        return "DATE/TIME"
     except:
         return "TEXT"
 
@@ -52,19 +51,21 @@ if __name__ == "__main__":
     sqlContext = SQLContext(spark)
     outputJSON = []
     #inFile = sys.argv[1]
-    file_id = 0
+    file_id = 1
     inFile = '/user/hm74/NYCOpenData'
     fs = spark._jvm.org.apache.hadoop.fs.FileSystem.get(spark._jsc.hadoopConfiguration())
     list_status = fs.listStatus(spark._jvm.org.apache.hadoop.fs.Path(inFile))
     fileNames = [file.getPath().getName() for file in list_status]
 
     for fileName in fileNames:
-        print("---" + str(file_id) + "th file---")
-        print(fileName)
         file_id += 1
+        print("---" + str(file_id) + "th file---")
+        print(fileNames[file_id])
+
         temp_JSON = dict()
-        temp_JSON['dataset_name'] = fileName
-        path = inFile + "/" + fileName
+        temp_JSON['dataset_name'] = fileNames[file_id]
+        path = inFile + "/" + fileNames[file_id]
+        
         spark = SparkSession(sc)
         test = sqlContext.read.format('csv').options(header='true', inferschema='true', delimiter='\t').load(path)
         test.createOrReplaceTempView("test")
@@ -192,11 +193,11 @@ if __name__ == "__main__":
         outputJSON.append(temp_JSON)
         #print(temp_JSON)
         
-        s = fileName + ".json"
+        s = fileNames[file_id] + ".json"
         with open(s, 'w') as f:
             json.dump(temp_JSON, f)
-        
-    with open('test.json', 'w') as f:
+    
+    with open('task1.json', 'w') as f:
         json.dump(outputJSON, f)
 
     print("--- %s seconds to completed ---" % (time.time() - start_time))
