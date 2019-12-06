@@ -8,7 +8,6 @@ import json
 import time
 import dateutil.parser
 
-from dateutil.parser import parse
 from datetime import datetime
 from pyspark import SparkContext
 from pyspark.sql import SparkSession
@@ -51,20 +50,26 @@ if __name__ == "__main__":
     sqlContext = SQLContext(spark)
     outputJSON = []
     #inFile = sys.argv[1]
-    file_id = 1
+    file_id = 0
     inFile = '/user/hm74/NYCOpenData'
     fs = spark._jvm.org.apache.hadoop.fs.FileSystem.get(spark._jsc.hadoopConfiguration())
     list_status = fs.listStatus(spark._jvm.org.apache.hadoop.fs.Path(inFile))
-    fileNames = [file.getPath().getName() for file in list_status]
+    
+    file_list = []
+    for file in list_status:
+    	file_list.append((file.getPath().getName(), file.getLen()))
+    file_list.sort(key = lambda x: x[1])
 
-    for fileName in fileNames:
-        file_id += 1
+    for file in file_list:
         print("---" + str(file_id) + "th file---")
-        print(fileNames[file_id])
+        fileName = file_list[file_id][0]
+        print(fileName)
+        print(file_list[file_id][1])
+        file_id += 1
 
         temp_JSON = dict()
-        temp_JSON['dataset_name'] = fileNames[file_id]
-        path = inFile + "/" + fileNames[file_id]
+        temp_JSON['dataset_name'] = fileName
+        path = inFile + "/" + fileName
         
         spark = SparkSession(sc)
         test = sqlContext.read.format('csv').options(header='true', inferschema='true', delimiter='\t').load(path)
@@ -193,9 +198,9 @@ if __name__ == "__main__":
         outputJSON.append(temp_JSON)
         #print(temp_JSON)
         
-        s = fileNames[file_id] + ".json"
+        s = "json/" + fileName + ".json"
         with open(s, 'w') as f:
-            json.dump(temp_JSON, f)
+            json.dump(temp_JSON, f)      
     
     with open('task1.json', 'w') as f:
         json.dump(outputJSON, f)
