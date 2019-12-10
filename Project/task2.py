@@ -63,7 +63,7 @@ if __name__ == "__main__":
     output = []
     for file in file_list:
         temp_output = dict()
-        if file == "qpm9-j523.org_website.txt.gz":
+        if file == "h9gi-nx95.VEHICLE_TYPE_CODE_3.txt.gz":
             inFile = path + file
             print("File Name: ", file)
             fileName = file.split('.')[1]
@@ -121,6 +121,57 @@ if __name__ == "__main__":
                     check = spark.sql("select _c0 from col except (select _c0 from website)")
                     check = check.withColumn('prediction', predict('_c0'))
                     #check.show(check.count(), False)
+            #school_level
+            elif re.match(r"^\w*school\w*level\w*", fileName):
+                #school_level = spark.sql("select _c0 from col")
+                school_level = spark.sql("select _c0 from col where UPPER(_c0) in ('K-2', 'K-3', 'K-8', 'ELEMENTARY', 'MIDDLE', 'HIGH SCHOOL TRANSFER', 'HIGH SCHOOL', 'D75','YABC')")
+                school_level.show()
+                print("school_level count: ", school_level.count())
+                if school_level.count() != col_count:
+                    school_level.createOrReplaceTempView("school_level")
+                    check = spark.sql("select _c0 from col except (select _c0 from school_level)")
+                    check = check.withColumn('prediction', predict('_c0'))
+                    #check.show(check.count(), False)
+            #city_agency
+            elif re.match(r"^\w*city\w*agency\w*", fileName):
+                #city_agency = spark.sql("select _c0 from col")
+                city_agency = spark.sql("select _c0 from col where UPPER(_c0) in ('311','ACS','BIC','BOE','BPL','CCHR','CCRB','CUNY','DCA','DCAS','DCLA','DCP','DDC','DEP','DFTA',\
+				'DHS','DOB','DOC','DOE','DOF','DOHMH','DOI','DOITT','DOP','DOR','DOT','DPR','DSNY','DVS','DYCD','EDC',\
+				'FDNY','HPD','HRA','LAW','LPC','NYCEM','NYCHA','NYPD','NYPL','OATH','OCME','QPL','SBS','SCA','TLC')")
+                city_agency.show()
+                print("city_agency count: ", city_agency.count())
+                if city_agency.count() != col_count:
+                    city_agency.createOrReplaceTempView("city_agency")
+                    check = spark.sql("select _c0 from col except (select _c0 from city_agency)")
+                    check = check.withColumn('prediction', predict('_c0'))
+                    #check.show(check.count(), False)
+            #color
+            elif re.match(r"^\w*color\w*", fileName):
+                #color = spark.sql("select _c0 from col")
+                color = spark.sql("select _c0 from col where UPPER(_c0) in ('BK', 'BL', 'BG', 'BR', 'GL', 'GY', 'MR', 'OR', 'PK', 'PR', 'RD', 'TN', 'WH', 'YW', \
+				'BLACK', 'BLUE', 'BEIGE', 'BROWN', 'GOLD', 'GRAY', 'MAROON', 'ORANGE', 'PINK', 'PURPLE', 'RED', 'TAN', 'WHITE', 'YELLOW')")
+                color.show()
+                print("color count: ", color.count())
+                if color.count() != col_count:
+                    color.createOrReplaceTempView("color")
+                    check = spark.sql("select _c0 from col except (select _c0 from color)")
+                    check = check.withColumn('prediction', predict('_c0'))
+                    #check.show(check.count(), False)
+			#vehicle_type
+            elif re.match(r"^\w*vehicle\w*type\w*", fileName):
+                #vehicle_type = spark.sql("select _c0 from col")
+                vehicle_type = spark.sql("select _c0 from col where UPPER(_c0) in ('FIRE', 'CONV', 'SEDN', 'SUBN', '4DSD', '2DSD', 'H/WH', 'ATV', 'MCY', 'H/IN', 'LOCO', 'RPLC',\
+				'AMBU', 'P/SH', 'RBM', 'R/RD', 'RD/S', 'S/SP', 'SN/P', 'TRAV', 'MOBL', 'TR/E', 'T/CR', 'TR/C', 'SWT',\
+				'W/DR', 'W/SR', 'FPM', 'MCC', 'EMVR', 'TRAC', 'DELV', 'DUMP', 'FLAT', 'PICK', 'STAK', 'TANK',\
+				'REFG', 'TOW', 'VAN', 'UTIL', 'POLE', 'BOAT', 'H/TR', 'SEMI', 'TRLR', 'LTRL', 'LSVT', 'BUS', 'LIM',\
+				'HRSE', 'TAXI', 'DCOM', 'CMIX', 'MOPD', 'MFH', 'SNOW', 'LSV')")
+                vehicle_type.show()
+                print("vehicle_type count: ", vehicle_type.count())
+                if vehicle_type.count() != col_count:
+                    vehicle_type.createOrReplaceTempView("vehicle_type")
+                    check = spark.sql("select _c0 from col except (select _c0 from vehicle_type)")
+                    check = check.withColumn('prediction', predict('_c0'))
+                    #check.show(check.count(), False)
             else:
                 check = col.withColumn('prediction', predict('_c0'))
                 check.show(check.count(), False)
@@ -136,3 +187,4 @@ if __name__ == "__main__":
 
     #with open('135_label.json', 'w') as f:
         #json.dump(labels, f)
+        
