@@ -14,24 +14,26 @@ from pyspark.sql import SQLContext
 from pyspark.sql.types import StructType, StructField, IntegerType, StringType, FloatType
 from pyspark.sql.window import Window
 from pyspark.sql.functions import *
-from pyspark.sql.functions import lit
-
+from pyspark.sql.functions import lower, col
 
 def  predict_category(value):
     phone_pattern = r"^\s*(\+?(\d{1,3}))?[-. (]*\(?\d{3}\)?[-. )]*(\d{3})[-. ]*(\d{4})(?: *x(\d+))?\s*$"
     lat_lon_cord_pattern = r"^\s*\(?-?(\d{0,3}\.\d),\s*-?(\d{0,3}\.\d)\)\s*$"
     zip_code_pattern = r"^\s*\d{5}-?(\d{4})?\s*$"
-    building_classification_pattern = r"^\s*[A-Za-z]\d{1}-[\w-]*\s*$"
+    building_classification_pattern = r"^\s*[A-Za-z]\d{1}-.*\s*$"
     website_pattern = r"^\s*(WWW\.|HTTP(s)?://)?.*(\.NET|\.ORG|\.COM)?/?\s*$"
-
+    
     if re.match(phone_pattern, value):
         return "phone_number"
-    elif re.match(lat_lon_cord_pattern, value):
+    if re.match(lat_lon_cord_pattern, value):
         return "lat_lon_cord"
-    elif re.match(zip_code_pattern, value):
+    if len(str(value)) >= 5 and re.match(zip_code_pattern, value):
         return "zip_code"
-    elif re.match(website_pattern, value):
+    if len(str(value)) >= 4 and re.match(website_pattern, value):
         return "website"
+
+    if value in borough_list:
+        return "borough"
     else:
         return "other"
 
@@ -63,7 +65,7 @@ if __name__ == "__main__":
     output = []
     for file in file_list:
         temp_output = dict()
-        if file == "h9gi-nx95.VEHICLE_TYPE_CODE_3.txt.gz":
+        if file == "6ypq-ih9a.BOROUGH.txt.gz":
             inFile = path + file
             print("File Name: ", file)
             fileName = file.split('.')[1]
@@ -76,6 +78,12 @@ if __name__ == "__main__":
             #spark.sql("select * from col").show(col.count(), False)
             col_count = col.count()
             print("Total count: ", col_count)
+
+            borough_list = ["K", "M", "Q", "R", "X", "BRONX", "BROOKLYN", "MANHATTAN", "QUEENS", "STATEN ISLAND"]
+            lst = [x.lower() for x in borough_list]
+            borough_list = borough_list + lst
+            boro = spark.createDataFrame(borough_list, StringType())
+            boro.createOrReplaceTempView("boro")
 
             predict = udf(lambda x: predict_category(x))
 
@@ -105,7 +113,7 @@ if __name__ == "__main__":
                     check = check.withColumn('prediction', predict('_c0'))
             #building_classification
             elif re.match(r"^\w*building\w*classification\w*", fileName):
-                building_classification = spark.sql("select _c0 from col where _c0 rlike '^\\\\s*[A-Za-z]\\\\d{1}-[\\\\w-]*\\\\s*$'")
+                building_classification = spark.sql("select _c0 from col where _c0 rlike '^\\\\s*[A-Za-z]\\\\d{1}-.*\\\\s*$'")
                 #building_classification.show()
                 if building_classification.count() != col_count:
                     building_classification.createOrReplaceTempView("building_classification")
@@ -115,63 +123,18 @@ if __name__ == "__main__":
             elif re.match(r"^\w*website\w*", fileName):
                 website = spark.sql("select _c0 from col where _c0 rlike '^\\\\s*(WWW\\\\.|HTTP(s)?://)?.*(\\\\.NET|\\\\.ORG|\\\\.COM)?/?\\\\s*$'")
                 #website.show()
-                #print("website count: ", website.count())
                 if website.count() != col_count:
                     website.createOrReplaceTempView("website")
                     check = spark.sql("select _c0 from col except (select _c0 from website)")
                     check = check.withColumn('prediction', predict('_c0'))
-                    #check.show(check.count(), False)
-            #school_level
-            elif re.match(r"^\w*school\w*level\w*", fileName):
-                #school_level = spark.sql("select _c0 from col")
-                school_level = spark.sql("select _c0 from col where UPPER(_c0) in ('K-2', 'K-3', 'K-8', 'ELEMENTARY', 'MIDDLE', 'HIGH SCHOOL TRANSFER', 'HIGH SCHOOL', 'D75','YABC')")
-                school_level.show()
-                print("school_level count: ", school_level.count())
-                if school_level.count() != col_count:
-                    school_level.createOrReplaceTempView("school_level")
-                    check = spark.sql("select _c0 from col except (select _c0 from school_level)")
+            #borough
+            elif re.match(r"^\w*boro\w*", fileName):
+                borough = spark.sql("select c._c0 from col c, boro b where c._c0 = b.value")
+                #borough.show()
+                if borough.count() != col_count:
+                    borough.createOrReplaceTempView("borough")
+                    check = spark.sql("select _c0 from col except (select _c0 from borough)")
                     check = check.withColumn('prediction', predict('_c0'))
-                    #check.show(check.count(), False)
-            #city_agency
-            elif re.match(r"^\w*city\w*agency\w*", fileName):
-                #city_agency = spark.sql("select _c0 from col")
-                city_agency = spark.sql("select _c0 from col where UPPER(_c0) in ('311','ACS','BIC','BOE','BPL','CCHR','CCRB','CUNY','DCA','DCAS','DCLA','DCP','DDC','DEP','DFTA',\
-				'DHS','DOB','DOC','DOE','DOF','DOHMH','DOI','DOITT','DOP','DOR','DOT','DPR','DSNY','DVS','DYCD','EDC',\
-				'FDNY','HPD','HRA','LAW','LPC','NYCEM','NYCHA','NYPD','NYPL','OATH','OCME','QPL','SBS','SCA','TLC')")
-                city_agency.show()
-                print("city_agency count: ", city_agency.count())
-                if city_agency.count() != col_count:
-                    city_agency.createOrReplaceTempView("city_agency")
-                    check = spark.sql("select _c0 from col except (select _c0 from city_agency)")
-                    check = check.withColumn('prediction', predict('_c0'))
-                    #check.show(check.count(), False)
-            #color
-            elif re.match(r"^\w*color\w*", fileName):
-                #color = spark.sql("select _c0 from col")
-                color = spark.sql("select _c0 from col where UPPER(_c0) in ('BK', 'BL', 'BG', 'BR', 'GL', 'GY', 'MR', 'OR', 'PK', 'PR', 'RD', 'TN', 'WH', 'YW', \
-				'BLACK', 'BLUE', 'BEIGE', 'BROWN', 'GOLD', 'GRAY', 'MAROON', 'ORANGE', 'PINK', 'PURPLE', 'RED', 'TAN', 'WHITE', 'YELLOW')")
-                color.show()
-                print("color count: ", color.count())
-                if color.count() != col_count:
-                    color.createOrReplaceTempView("color")
-                    check = spark.sql("select _c0 from col except (select _c0 from color)")
-                    check = check.withColumn('prediction', predict('_c0'))
-                    #check.show(check.count(), False)
-			#vehicle_type
-            elif re.match(r"^\w*vehicle\w*type\w*", fileName):
-                #vehicle_type = spark.sql("select _c0 from col")
-                vehicle_type = spark.sql("select _c0 from col where UPPER(_c0) in ('FIRE', 'CONV', 'SEDN', 'SUBN', '4DSD', '2DSD', 'H/WH', 'ATV', 'MCY', 'H/IN', 'LOCO', 'RPLC',\
-				'AMBU', 'P/SH', 'RBM', 'R/RD', 'RD/S', 'S/SP', 'SN/P', 'TRAV', 'MOBL', 'TR/E', 'T/CR', 'TR/C', 'SWT',\
-				'W/DR', 'W/SR', 'FPM', 'MCC', 'EMVR', 'TRAC', 'DELV', 'DUMP', 'FLAT', 'PICK', 'STAK', 'TANK',\
-				'REFG', 'TOW', 'VAN', 'UTIL', 'POLE', 'BOAT', 'H/TR', 'SEMI', 'TRLR', 'LTRL', 'LSVT', 'BUS', 'LIM',\
-				'HRSE', 'TAXI', 'DCOM', 'CMIX', 'MOPD', 'MFH', 'SNOW', 'LSV')")
-                vehicle_type.show()
-                print("vehicle_type count: ", vehicle_type.count())
-                if vehicle_type.count() != col_count:
-                    vehicle_type.createOrReplaceTempView("vehicle_type")
-                    check = spark.sql("select _c0 from col except (select _c0 from vehicle_type)")
-                    check = check.withColumn('prediction', predict('_c0'))
-                    #check.show(check.count(), False)
             else:
                 check = col.withColumn('prediction', predict('_c0'))
                 check.show(check.count(), False)
@@ -187,4 +150,3 @@ if __name__ == "__main__":
 
     #with open('135_label.json', 'w') as f:
         #json.dump(labels, f)
-        
